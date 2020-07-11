@@ -1,6 +1,15 @@
-#######################################
+################################################################################################
 #  Tutorial credit: François Chollet
-#######################################
+#
+#   "   Keras tweetorial:
+#
+#       this is how you implement a custom training loop that you can call from `fit()`
+#       -- which supports callbacks, distributed training, and various performance optimizations.
+#           1. Override `train_step`
+#           2. Return a dict of metrics
+#           3. Use with `compile` & `fit` as usual
+#   "
+################################################################################################
 
 import tensorflow as tf
 from tensorflow import keras
@@ -8,22 +17,27 @@ from tensorflow import keras
 model = keras.Sequential()
 
 # Adds a densely-connected layer with 64 units to the model:
-model.add(keras.layers.Dense(64, activation='relu'))
+#   model.add(keras.layers.Dense(64, activation='relu'))
 # Add another:
-model.add(keras.layers.Dense(64, activation='relu'))
+#   model.add(keras.layers.Dense(64, activation='relu'))
 # Add a softmax layer with 10 output units:
-model.add(keras.layers.Dense(10, activation='softmax'))
+#   model.add(keras.layers.Dense(10, activation='softmax'))
 
 
 class CustomModel(keras.Model):
+    
     def train_step(self, data):
+        
         inputs, targets = data
+        
         with tf.GradientTape() as tape:
             predictions = self(inputs, training=True)                       # forward pass
             loss = self.compiled_loss(targets, predictions)                 # forward pass
+            
         gradients = tape.gradient(loss, model.trainable_weights)            # backwards pass
         optimizer.apply_gradients(zip(gradients, model.trainable_weights))  # backwards pass
         self.compiled_metrics.update_state(targets, predictions)            # update and return metrics
+        
         return {m.name:m.results() for m in self.metrics}                   # update and return metrics
 
 
@@ -45,7 +59,5 @@ metrics = [keras.metrics.SparseCategoricalAccuracy()]
 model.compile(opimizer, loss, metrics)
     
 # model.fit(train_images, train_labels, epochs=3)
-        
-def main():
-    print("python main function")
-    main()
+
+
